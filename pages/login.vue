@@ -4,32 +4,29 @@ const user = useSupabaseUser()
 const toast = useToast()
 import type { AuthError } from '@supabase/supabase-js'
 
-// State untuk beralih antara mode Login ('in') dan Registrasi ('up')
-const sign = ref<'in' | 'up'>('in')
+definePageMeta({
+  layout: 'blank'
+})
 
-// Jika pengguna sudah login, langsung arahkan ke halaman utama
 watchEffect(() => {
   if (user.value) {
     return navigateTo('/')
   }
 })
 
-// Definisi input field untuk form
 const fields = [{
   name: 'email',
   type: 'text' as const,
   label: 'Email',
-  placeholder: 'Masukkan email Anda',
+  placeholder: 'Please enter your email',
   required: true,
 }, {
   name: 'password',
   label: 'Password',
   type: 'password' as const,
-  placeholder: 'Masukkan password Anda',
+  placeholder: 'Please enter your password',
 }]
 
-// --- PERUBAHAN DI SINI ---
-// Provider diubah dari GitHub ke Google
 const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -47,34 +44,14 @@ const signIn = async (email: string, password: string) => {
   })
   if (error) return displayError(error)
 
-  // Tambahan: Beri notifikasi sukses saat login berhasil
   toast.add({
-    title: 'Login berhasil!',
+    title: 'Login Success!',
     icon: 'i-lucide-check-circle',
   })
-}
-
-const signUp = async (email: string, password: string) => {
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
-  if (error) return displayError(error)
-
-  toast.add({
-    title: 'Registrasi berhasil',
-    description: 'Silakan cek email Anda untuk verifikasi.',
-    icon: 'i-lucide-check-circle',
-  })
-  // Setelah registrasi, tidak langsung login agar pengguna verifikasi email dulu
 }
 
 async function onSubmit(payload: { data: { email: string, password: string } }) {
-  const email = payload.data.email
-  const password = payload.data.password
-
-  if (sign.value === 'in') await signIn(email, password)
-  else await signUp(email, password)
+  await signIn(payload.data.email, payload.data.password)
 }
 
 const displayError = (error: AuthError) => {
@@ -88,11 +65,11 @@ const displayError = (error: AuthError) => {
 </script>
 
 <template>
-  <UContainer class="h-[calc(100vh-var(--header-height))] flex items-center">
-    <UPageCard class="max-w-sm w-full mx-auto">
+  <UContainer class="min-h-screen flex items-center justify-center">
+    <UPageCard class="max-w-sm w-full">
       <UAuthForm
-        :title="sign === 'in' ? 'Selamat Datang' : 'Buat Akun Baru'"
-        :description="sign === 'in' ? 'Silakan login untuk melanjutkan' : ''"
+        title="Welcome to Planty!"
+        description="Please sign in to continue"
         icon="i-lucide-user-circle"
         :fields="fields"
         @submit="onSubmit"
@@ -107,23 +84,21 @@ const displayError = (error: AuthError) => {
               />
             </template>
           </UButton>
+          <div class="relative flex items-center justify-center">
+          <div class="absolute border-t border-gray-300 dark:border-gray-700 w-full"></div>
+            <span class="relative bg-white dark:bg-gray-900 px-2 text-sm text-gray-500 dark:text-gray-400">
+              or
+            </span>
+          </div>
         </template>
 
-        <template #description>
-          {{ sign === 'up' ? 'Sudah punya akun?' : 'Belum punya akun?' }}
-          <UButton
-            variant="link"
-            class="p-0"
-            @click="sign = sign === 'up' ? 'in' : 'up'"
-          >
-            {{ sign === 'in' ? 'Daftar di sini' : 'Login' }}
-          </UButton>
-        </template>
-
-        
-
+      <template #description>
+        Dont have account?
+        <NuxtLink to="/register" class="text-primary font-medium">Register here</NuxtLink>
+      </template>
+      
         <template #footer>
-          Dengan melanjutkan, Anda setuju dengan Syarat & Ketentuan kami.
+          By continuing, you agree to our Terms & Conditions.
         </template>
       </UAuthForm>
     </UPageCard>
