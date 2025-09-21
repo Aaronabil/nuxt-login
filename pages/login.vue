@@ -1,64 +1,20 @@
 <script setup lang="ts">
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const toast = useToast()
-import type { AuthError } from '@supabase/supabase-js'
+import { useAuth } from '~/composables/useAuth'
 
-definePageMeta({
-  layout: 'default'
-})
+const { user, signIn, signInWithGoogle } = useAuth()
 
 const state = reactive({
   email: '',
-  password: ''
+  password: '',
 })
 
 watchEffect(() => {
-  if (user.value) {
-    return navigateTo('/')
-  }
+  if (user.value) navigateTo('/')
 })
 
-const signInWithGoogle = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/confirm`,
-    },
-  })
-  if (error) displayError(error)
-}
-
-const signIn = async (email: string, password: string) => {
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-  if (error) return displayError(error)
-
-  toast.add({
-    title: 'Login Success!',
-    icon: 'i-lucide-check-circle',
-  })
-}
-
-async function onSubmit(payload: { data: { email: string, password: string } }) {
+async function onSubmit(payload: { data: { email: string; password: string } }) {
   await signIn(payload.data.email, payload.data.password)
 }
-
-const displayError = (error: AuthError) => {
-  toast.add({
-    title: 'Error',
-    description: error.message,
-    icon: 'i-lucide-alert-circle',
-    color: 'error',
-  })
-}
-
-useSeoMeta({
-  title: 'Login - Planty',
-  description: 'Login to access your Planty account and manage your plants with ease.',
-})
 </script>
 
 <template>
