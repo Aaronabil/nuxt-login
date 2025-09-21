@@ -3,7 +3,7 @@ const user = useSupabaseUser()
 const router = useRouter()
 
 definePageMeta({
-  layout: 'blank'
+  layout: 'default'
 })
 
 watch(user, () =>  {

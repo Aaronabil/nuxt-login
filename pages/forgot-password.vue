@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: 'blank'
+  layouts: 'default'
 })
 
 const state = reactive({

@@ -4,7 +4,17 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@nuxtjs/supabase',
-    '@nuxt/ui-pro'
+    '@nuxt/ui'
   ],
+  supabase: {
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: [
+        '/', 
+        '/register', 
+      ]
+    }
+  },
   css: ['~/assets/css/main.css'],
 })
